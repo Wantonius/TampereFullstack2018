@@ -1,0 +1,19 @@
+{
+  "name": "nodebackend",
+  "version": "1.0.0",
+  "description": "node backend for shopping app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "express"
+  ],
+  "author": "erno",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4"
+  }
+}
