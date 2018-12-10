@@ -44,9 +44,10 @@ class ShoppingList extends React.Component {
 }
 
 const mapStateToProps = (state) => {
+	console.log(state);
 	console.log("ShoppingList - mapStateToProps");
 	return {
-		list:state.list
+		list:state.shopping.list
 	}
 }
 

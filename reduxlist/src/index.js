@@ -5,10 +5,17 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from 'react-router-dom';
 import {Provider} from 'react-redux';
-import {createStore} from 'redux';
+import thunk from 'redux-thunk'
+import {createStore,applyMiddleware, combineReducers} from 'redux';
 import shoppingReducer from './reducers/ShoppingReducer';
+import loginReducer from './reducers/loginReducer'
 
-const store = createStore(shoppingReducer);
+let rootReducer = combineReducers({
+	login:loginReducer,
+	shopping:shoppingReducer
+})
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
 
 ReactDOM.render(
 <Provider store={store}>
