@@ -1,16 +1,16 @@
 import React from 'react';
 import {Table,Button} from 'semantic-ui-react'
 import {connect} from 'react-redux';
+import {getList, deleteFromList} from './actions/shoppingActions';
 
 class ShoppingList extends React.Component {
 
+	componentDidMount() {
+		this.props.dispatch(getList(this.props.token));
+	}
+
 	remove = (event) => {
-		let action = {
-			type:"REMOVE_FROM_LIST",
-			id:event.target.name
-		}
-		console.log("ShoppingList dispatching action:"+action.type);
-		this.props.dispatch(action);
+		this.props.dispatch(deleteFromList(this.props.token,event.target.name));
 	}
 
 	render() {
@@ -44,10 +44,9 @@ class ShoppingList extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-	console.log(state);
-	console.log("ShoppingList - mapStateToProps");
 	return {
-		list:state.shopping.list
+		list:state.shopping.list,
+		token:state.login.token
 	}
 }
 

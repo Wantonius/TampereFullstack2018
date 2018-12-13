@@ -1,34 +1,80 @@
-const initialState = {
-	list:[],
-	id:100
+import * as shoppingAction from '../actions/shoppingActions'
+
+
+function getInitialState() {
+	let initialState = {
+		list:[],
+		loading:false,
+		error:""
+	}
+	if(sessionStorage.getItem("shopping_state")) {
+		initialState = JSON.parse(sessionStorage.getItem("shopping_state"));
+	}
+	return initialState;
+}
+
+const initialState = getInitialState();
+
+function saveToStorage(state) {
+	let string_state = JSON.stringify(state);
+	sessionStorage.setItem("shopping_state",string_state);
 }
 
 const shoppingReducer = (state = initialState, action) => {
 	console.log("ShoppingReducer: action:"+action.type)
-	let tempState = {...state};
+	console.log(state);
+	let tempState = {};
 	switch(action.type) {
-		case "ADD_TO_LIST":
-			action.item.id = state.id;
-			let tempList = [];
-			let tempId = state.id+1;
-			for(let i=0;i<state.list.length;i++) {
-				tempList.push(state.list[i])			
-			}
-			tempList.push(action.item);
+		case shoppingAction.LIST_LOADING:
 			tempState = {
-				list:tempList,
-				id:tempId
+				...state,
+				loading:true,
+				error:""
 			}
 			return tempState;
-		case "REMOVE_FROM_LIST":
-			let tempId2 = parseInt(action.id,10);
-			let tempList2 = [];
-			for(let i=0;i<state.list.length;i++) {
-				if(state.list[i].id !== tempId2) {
-					tempList2.push(state.list[i]);
-				}
+		case shoppingAction.GET_LIST_SUCCESS:
+			tempState= {
+				loading:false,
+				error:"",
+				list:action.list
 			}
-			tempState.list = tempList2;
+			saveToStorage(tempState);
+			return tempState;
+		case shoppingAction.GET_LIST_FAILED:
+			tempState = {
+				...state,
+				loading:false,
+				error:action.error
+			}
+			saveToStorage(tempState);
+			return tempState;
+		case shoppingAction.ADD_TO_LIST_SUCCESS:
+			tempState = {
+				...state,
+				error:""
+			}
+			return tempState;
+		case shoppingAction.ADD_TO_LIST_FAILED:
+			tempState = {
+				...state,
+				loading:false,
+				error:action.error
+			}
+			saveToStorage(tempState);
+			return tempState;
+		case shoppingAction.DELETE_FROM_LIST_SUCCESS:
+			tempState = {
+				...state,
+				error:""
+			}
+			return tempState;
+		case shoppingAction.DELETE_FROM_LIST_FAILED:
+			tempState = {
+				...state,
+				error:action.error,
+				loading:false
+			}
+			saveToStorage(tempState);
 			return tempState;
 		default:
 			return state;

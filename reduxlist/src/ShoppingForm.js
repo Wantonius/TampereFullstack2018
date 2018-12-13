@@ -1,6 +1,7 @@
 import React from 'react';
 import {Form,Button} from 'semantic-ui-react';
 import {connect} from 'react-redux';
+import {addToList} from './actions/shoppingActions'
 
 class ShoppingForm extends React.Component {
 
@@ -27,13 +28,7 @@ class ShoppingForm extends React.Component {
 			"price":this.state.price,
 			"count":this.state.count
 		}
-		
-		let action = {
-			type:"ADD_TO_LIST",
-			item:item
-		}
-		console.log("ShoppingForm - dispatching action:"+action.type);
-		this.props.dispatch(action);
+		this.props.dispatch(addToList(this.props.token,item));
 	}
 	
 	render() {
@@ -68,4 +63,10 @@ class ShoppingForm extends React.Component {
 	}
 }
 
-export default connect()(ShoppingForm);
+const mapStateToProps = (state) => {
+	return {
+		token: state.login.token
+	}
+}
+
+export default connect(mapStateToProps)(ShoppingForm);
