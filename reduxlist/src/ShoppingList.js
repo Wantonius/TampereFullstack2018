@@ -15,11 +15,11 @@ class ShoppingList extends React.Component {
 
 	render() {
 		let items = this.props.list.map((item) => 
-			<Table.Row key={item.id}>
+			<Table.Row key={item._id}>
 				<Table.Cell>{item.type}</Table.Cell>
 				<Table.Cell>{item.price}</Table.Cell>
 				<Table.Cell>{item.count}</Table.Cell>
-				<Table.Cell><Button name={item.id}
+				<Table.Cell><Button name={item._id}
 							onClick={this.remove}>Remove</Button>
 							</Table.Cell>
 			</Table.Row>

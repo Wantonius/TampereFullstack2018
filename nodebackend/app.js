@@ -2,10 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const userModel = require("./models/user");
+const itemModel = require("./models/item");
 const session = require("express-session");
 const mongoStore = require("connect-mongo")(session);
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;	
+const bcrypt = require("bcrypt-nodejs");
 
 let app = express();
 
@@ -33,6 +35,17 @@ app.use(session({
 	})
 }));
 
+// BCRYPT PASSWORD SALTING AND ENCRYPTING
+
+function createHash(pw) {
+	return bcrypt.hashSync(pw, bcrypt.genSaltSync(8),null);
+}
+
+function isPasswordValid(pw,hash) {
+	return bcrypt.compareSync(pw,hash);
+}
+
+
 //PASSPORT AUTHENTICATION SETUP
 
 app.use(passport.initialize());
@@ -53,7 +66,7 @@ passport.use("local-login", new localStrategy({
 		if(!user) {
 			return done(null,false,"Wrong credentials");
 		}
-		if(user.password === password) {
+		if(isPasswordValid(password,user.password)) {
 			return done(null,user);
 		}
 		return done(null,false,"Wrong credentials");
@@ -75,10 +88,6 @@ passport.deserializeUser(function(id, done) {
 		done(null,user);
 	});
 });
-//database
-
-let shoppingList = [];
-let id = 100;
 
 
 // FILTER
@@ -96,30 +105,42 @@ app.use("/api", function(req,res,next) {
 // SHOPPING API
 
 app.get("/api/shopping",function(req,res) {
-	res.status(200).json(shoppingList);
+	itemModel.find({}, function(err,items) {
+		if(err) {
+			return res.status(404).json({"message":"not found"})
+		}
+		if(!items) {
+			return res.status(404).json({"message":"not found"})
+		}
+		return res.status(200).json(items);
+	});
 });
 
 app.post("/api/shopping", function(req,res) {
-	let item = {
-		"id":id,
+	let item = new itemModel({
 		"type":req.body.type,
 		"count":req.body.count,
 		"price":req.body.price
-	}
-	id++;
-	shoppingList.push(item);
-	res.status(200).json({"message":"success!"});
+	})
+	item.save(function(err, item) {
+		if(err) {
+			return res.status(409).json({"message":"confict"});
+		}
+		if(!item) {
+			return res.status(409).json({"message":"confict"});			
+		}
+		return res.status(200).json({"message":"success!"});
+	});
 });
 
 app.delete("/api/shopping/:id", function(req,res) {
-	let tempId = parseInt(req.params.id,10);
-	for(let i=0;i<shoppingList.length;i++) {
-		if(shoppingList[i].id === tempId) {
-			shoppingList.splice(i,1);
-			return res.status(200).json({"message":"success!"});
+	itemModel.deleteOne({"_id":req.params.id}, function(err) {
+		if(err) {
+			return res.status(404).json({"message":"not found"});
 		}
-	}
-	res.status(404).json({"message":"not found"});
+		return res.status(200).json({"message":"success"});
+	});
+	
 });
 
 // LOGIN API
@@ -136,7 +157,7 @@ app.post("/register", function(req,res) {
 	}
 	let user = new userModel({
 		"username":req.body.username,
-		"password":req.body.password
+		"password":createHash(req.body.password)
 	})
 	user.save(function(err, item) {
 		if(err) {
