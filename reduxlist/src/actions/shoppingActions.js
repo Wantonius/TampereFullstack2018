@@ -14,6 +14,7 @@ export const getList = (token) => {
 		let getListObject = {
 			method:"GET",
 			mode:"cors",
+			credentials:"include",
 			headers:{"Content-Type":"application/json",
 					 "token":token}
 		}
@@ -40,6 +41,7 @@ export const addToList = (token,item) => {
 		let addToListObject = {
 			method:"POST",
 			mode:"cors",
+			credentials:"include",
 			headers:{"Content-Type":"application/json",
 					 "token":token},
 			body:JSON.stringify(item)
@@ -67,6 +69,7 @@ export const deleteFromList = (token,id) => {
 		let deleteObject = {
 			method:"DELETE",
 			mode:"cors",
+			credentials:"include",
 			headers:{"Content-Type":"application/json",
 					 "token":token},
 		}

@@ -66,6 +66,7 @@ export const logout = (token) => {
 		let logoutObject = {
 			method:"POST",
 			mode:"cors",
+			credentials:"include",
 			headers:{"Content-Type":"application/json",
 					 "token":token}
 		}
