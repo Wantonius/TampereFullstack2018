@@ -15,7 +15,7 @@ app.get("/api/shoppinglist", function(req,res) {
 app.post("/api/shoppinglist", function(req,res) {
 	let item = {
 		"id":id,
-		"itemtype":req.body.itemtype,
+		"type":req.body.type,
 		"count":req.body.count,
 		"price":req.body.price
 	}
@@ -35,5 +35,55 @@ app.delete("/api/shoppinglist/:id", function(req,res) {
 	return res.status(404).json({"message":"not found"});
 });
 
+//Login API
+
+let registeredUsers = [];
+let loggedUsers = [];
+
+app.post("/register", function(req,res) {
+	let user = {
+		"username":req.body.username,
+		"password":req.body.password
+	}
+	registeredUsers.push(user);
+	return res.status(200).json({"message":"success"});
+});
+
+app.post("/login", function(req,res) {
+	for(let i=0;i<registeredUsers.length;i++) {
+		if(registeredUsers[i].username == req.body.username) {
+			if(registeredUsers[i].password == req.body.password) {
+				let token = createToken();
+				loggedUsers.push({
+					"token":token,
+					"username":req.body.username
+				})
+				return res.status(200).json({"token":token});
+			}
+		}
+	}
+	return res.status(403).json({"message":"not allowed"});
+});
+
+function createToken() {
+	let letters = "abcdefghijABCDEFGHIJ0123456789";
+	let token = "";
+	for(let i=0;i<128;i++) {
+		let temp = Math.floor(Math.random()*30);
+		token = token + letters[temp]
+	}
+	return token;
+}
+
+function isUserLogged(req,res,next) {
+	for(let i=0;i<loggedUsers.length;i++) {
+		if(req.headers.token == loggedUsers[i].token) {
+			return next();
+		}
+	}
+	return res.status(403).json({"message":"forbidden"});
+}
+
+app.use("/api",isUserLogged);
 app.listen(3000);
 console.log("Running in port 3000");
